@@ -2,3 +2,9 @@ hello git
 
 -- 下载指定github仓库
 Git clone “”
+-- 放入暂存区
+git add ./
+--本地提交
+git commit -m "备注"
+-- 上传到github
+git push origin master
