@@ -15,5 +15,13 @@ git pull
 -- 显示日志
 git log
 
+--优化显示日志
+git log --pretty=oneline
 
+
+--回退版本到缓存区
+git reset HEAD
+
+--从缓存区回退版本到工作区域
+git checkout "目标文件"
 薛勇康
