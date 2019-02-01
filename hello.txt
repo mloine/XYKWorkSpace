@@ -1,19 +1,19 @@
-hello git
+hello git xyk use start 2019/02/01
 
--- ÏÂÔØÖ¸¶¨github²Ö¿â
-git clone ¡°¡±
--- ·ÅÈëÔİ´æÇø
+-- ä¸‹è½½æŒ‡å®šgithubä»“åº“
+git clone â€œâ€
+-- æ”¾å…¥æš‚å­˜åŒº
 git add ./
---±¾µØÌá½»
-git commit -m "±¸×¢"
--- ÉÏ´«µ½github
+--æœ¬åœ°æäº¤
+git commit -m "å¤‡æ³¨"
+-- ä¸Šä¼ åˆ°github
 git push origin master
 
 
 
--- ´Ó·şÎñÆ÷À­´úÂë
+-- ä»æœåŠ¡å™¨æ‹‰ä»£ç 
 git pull
 
 
--- ÏÔÊ¾ÈÕÖ¾
+-- æ˜¾ç¤ºæ—¥å¿—
 git log
