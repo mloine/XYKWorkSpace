@@ -78,7 +78,6 @@ docker run -p 3307:3306 --name mysql04 -e MYSQL_ROOT_PASSWORD=123456 -d mysql --
 -- 自己测试
 docker run --name redisxyk -d -p 6379:6379 redis
 
-
 -- rabbitmq  消息队列
 
 
