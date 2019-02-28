@@ -1,0 +1,60 @@
+-- linux 环境yum下载docker
+yum install docker
+
+-- 系统开机启动docker
+systemctl enable docker
+
+-- 启动docker
+systemctl start docker
+
+-- 停止docker
+systemctl stop docker
+
+-- 查询镜像包
+docker search mysql
+
+-- 拉去镜像包
+docker pull mysql
+
+-- 查询下载的镜像
+docker images
+
+-- 根据IMAGE ID 删除镜像
+docker rmi 5d4d5c57ea8
+
+-- 根据镜像启动容器
+	--name 镜像启动名字
+	-d 后台运行
+	镜像名:版本号
+docker run --name mytomcat -d tomcat:latest
+
+-- 查看docker启动进程
+docker ps
+
+--停止指定镜像容器
+docker stop 容器id
+
+-- 查看所有的镜像 包括没在运行的
+docker ps -a
+
+-- 根据容器di启动容器
+docker start 0ffc9960dcc9
+
+-- 删除容器
+docker rm 0ffc9960dcc9
+
+-- 启动镜像
+	-d 后台运行
+	-p 端口映射 将主机端口 映射到容器内部的端口
+docker run -d -p 8888:8080 tomcat
+
+-- 查看对应镜像的日志
+docker logs ec6197aef518
+
+-- 查看防火墙状态
+service firewalld status
+-- 关闭防火墙服务
+service firewalld stop
+
+
+

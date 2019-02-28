@@ -1,0 +1,390 @@
+-- 查看java进程
+jps
+-- 查看版本
+hadoop version
+
+--格式化 名称节点
+hadoop namenode -format
+
+--启动hadoop  sbin目录下
+start-all.sh 
+
+-- 启动后产生的5个进程
+16964 ResourceManager
+17816 NodeManager
+
+17492 DataNode
+17403 NameNode
+17611 SecondaryNameNode
+
+17848 Jps
+
+
+--查看hdfs的文件目录
+hdfs dfs -ls /
+
+--创建文件目录
+hdfs dfs -mkdir -p /user/centos/hadoop
+
+
+--递归查看文件目录
+hdfs dfs -lsr /
+
+-- 防火墙操作
+systemctl enable firewalld.service
+systemctl start firewalld.service
+systemctl stop firewalld.service
+
+--网址访问 端口50070
+172.16.10.133:50070
+
+--hadoop 端口
+50070   //namenode http port
+50075   //datanode http port
+50090   //2namenoe http port
+
+8020    //namenode  rpc port
+50010   //datanode  rpc port
+
+--四个模块
+common
+hdfs       //namenode + dataname + SecondaryNameNode
+
+mapred
+yarn	  //NodeManager + ResourceManager
+
+
+--启动脚本
+1. start-all.sh //启动所有进程
+2. stop-all.sh //停止所有进程
+
+3. start-dfs.sh
+	NN
+	DN
+	2NN
+4. start-yarn.sh
+	NM
+	RM
+
+
+
+172.16.10.133 s133  namenode
+172.16.10.135 s135  datanode
+172.16.10.136 s136  datanode
+172.16.10.137 s137  datanode
+172.16.10.138 s138
+172.16.10.139 s139
+
+
+准备完全分布式主机
+--1.namenode设置ssh无密登录datanodes
+
+-- namenode生成ssh 公钥私钥
+ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
+
+
+-- 远程复制公钥到datanode主机
+scp id_rsa.pub centos@s133:/home/centos/.ssh/authorized_keys
+scp id_rsa.pub centos@s135:/home/centos/.ssh/authorized_keys
+scp id_rsa.pub centos@s136:/home/centos/.ssh/authorized_keys
+scp id_rsa.pub centos@s137:/home/centos/.ssh/authorized_keys
+
+
+--修改配置文件
+--core-site.xml
+	<property>
+                <name>fs.defaultFS</name>
+                <value>hdfs://s133/</value>
+        </property>
+--hdfs-site.xml
+	<property>
+                <name>dfs.replication</name>
+                <value>3</value>
+        </property>
+--yarn-site.xml
+ 	<property>
+                <name>yarn.resourcemanager.hostname</name>
+                <value>s133</value>
+        </property>
+        <property>
+                <name>yarn.nodemanager.aux-services</name>
+                <value>mapreduce_shuffle</value>
+        </property>
+
+--slaves
+配置数据节点
+
+scp -r full centos@s135:/soft/hadoop/etc/
+scp -r full centos@s136:/soft/hadoop/etc/
+scp -r full centos@s137:/soft/hadoop/etc/
+
+ssh s135 rm /soft/hadoop/etc/hadoop
+ssh s136 rm /soft/hadoop/etc/hadoop
+ssh s137 rm /soft/hadoop/etc/hadoop
+ssh s135 ln -s /soft/hadoop/etc/full /soft/hadoop/etc/hadoop
+ssh s136 ln -s /soft/hadoop/etc/full /soft/hadoop/etc/hadoop
+ssh s137 ln -s /soft/hadoop/etc/full /soft/hadoop/etc/hadoop
+
+--名称节点配置
+scp slaves centos@s135:/soft/hadoop/etc/full/
+scp slaves centos@s136:/soft/hadoop/etc/full/
+scp slaves centos@s137:/soft/hadoop/etc/full/
+-- 删除临时文件
+rm -rf hadoop-centos
+ssh s135 rm -rf /tmp/hadoop-centos
+ssh s136 rm -rf /tmp/hadoop-centos
+ssh s137 rm -rf /tmp/hadoop-centos
+
+--删除日志文件
+cd /soft/hadoop/logs
+rm -rf *
+ssh s135 rm -rf /soft/hadoop/logs/*
+ssh s136 rm -rf /soft/hadoop/logs/*
+ssh s137 rm -rf /soft/hadoop/logs/*
+
+--修改hadoop-env.sh 的JAVA_HOME 
+scp hadoop-env.sh centos@s135:/soft/hadoop/etc/full/hadoop-env.sh
+
+--格式化hadoop系统
+hadoop namenode -format
+
+--
+scp    远程拷贝  但不能处理符号连接 符号连接复制后会变成具体的值 
+
+rsync  远程同步 -l 支持符号连接 -r  递归
+rsync -lr etc centos@s135:/soft/hadoop/
+ 
+ hdfs-site.xml
+	 <property>
+                <name>dfs.namenode.name.dir</name>
+                <value>/disk1/hdfs/name,/remote/hdfs/name/</value>
+        </property>
+        <property>
+                <name>dfs.datanode.data.dir</name>
+                <value>/disk1/hdfs/data,/disk2/hdfs/data</value>
+        </property>
+        <property>
+                <name>dfs.namenode.checkpoint.dir</name>
+                <value>/disk1/hdfs/namesecondary,/disk2/hdfs/namesecondary</value>
+        </property>
+
+
+
+sbin/
+-------start-hdfs.sh------
+hadoop-daemons.sh --config .. --hostname .. start datanode ...
+hadoop-daemons.sh --config .. --hostname .. start namenode ...
+hadoop-daemons.sh --config .. --hostname .. start secondarynamenode
+hadoop-daemons.sh --config .. --hostname .. start zkfc
+
+   
+-------start-yarn.sh-------------
+yarn-daemon.sh --config ..  start resourcemanager
+yarn-daemons.sh --config ..  start nodemanager
+
+-----------hadoop-daemon.sh----------------------
+/bin/hdfs    
+
+-----------yarn-daemon.sh----------------------
+/bin/yarn     
+      
+
+-- 单独启动
+ hadoop-daemon.sh start namenode     --单独启动名称节点
+ hadoop-daemons.sh start datanode     --启动所有数据节点
+ hadoop-daemon.sh start secondarynamenode     --单独启动辅助名称节点
+
+--单独data节点的启动与关闭
+hadoop-daemon.sh start datanode 
+hadoop-daemon.sh stop datanode
+
+
+
+ yarn-daemon.sh start resourcemanager   --启动所有数据节点
+ yarn-daemons.sh start 	nodemanager     --启动所有管理节点
+
+ ----/bin/hadop-------------------------------------------
+hadoop fs	--文件命令
+hadoop version  --查看版本
+hadoop jar      --执行jar包
+hadoop classpath -- 
+hadoop checknative 
+
+hadoop namenode -format //格式化文件系统
+
+
+---/bin/hdfs---------------------------------
+
+hdfs  dfs == hadoop fs
+
+
+
+
+
+--例子
+hdfs dfs -mkdir -p /user/centos/hadoop   递归创建文件目录
+hdfs dfs -put index.html /user/centos/hadoop 从本地上传文件到hdfs文件系统
+hdfs dfs -get /user/centos/hadoop/index.html a.html  从文件系统下载文件到本地
+
+hdfs dfs -ls -R /    递归查看所有文件目录
+hdfs dfs -rm -r -f /user/centos/hadoop  删除制定目录和文件
+hdfs dfs -cat /user/centos/hadoop/index.html 查看文件内容
+hdfs dfs -appendToFile a.txt /user/centos/hadoop/index.html  追加文件内容到hdfs的制定文件中
+
+
+
+185646832   jdk-8u181-linux-x64.tar.gz
+
+
+134217728    Block0       1073741828
+ 51429104    Block1  块号 1073741829
+185646832
+
+
+
+
+--- 配置本地的目录  tmp临时目录重新开机会删除 作为默认路径不合适
+core-site.xml
+hadoop.tmp.dir=/home/centos/hadoop
+
+<property>
+  <name>hadoop.tmp.dir</name>
+  <value>/home/${user.name}/hadoop</value>
+  <description>A base for other temporary directories.</description>
+</property>
+
+
+<property>
+  <name>hadoop.tmp.dir</name>
+  <value>/tmp/hadoop-${user.name}</value>
+  <description>A base for other temporary directories.</description>
+</property>
+
+
+hdfs-site.xml 
+dfs.namenode.name.dir   file://${hadoop.tmp.dir}/dfs/name
+dfs.datanode.data.dir    file://${hadoop.tmp.dir}/dfs/data
+dfs.namenode.checkpoint.dir  file://${hadoop.tmp.dir}/dfs/namesecondary
+
+hadoop namenode -format -- 格式化文件系统的时候 只对本地的目录初始化
+hdfs namenode -format   -- 格式化文件系统的时候 只对本地的目录初始化
+
+
+
+
+-----------使用hadoop客户端api访问hdfs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--firewall 基本使用 
+1、firewalld的基本使用
+启动： systemctl start firewalld
+关闭： systemctl stop firewalld
+查看状态： systemctl status firewalld 
+开机禁用  ： systemctl disable firewalld
+开机启用  ： systemctl enable firewalld
+ 
+ 
+2.systemctl是CentOS7的服务管理工具中主要的工具，它融合之前service和chkconfig的功能于一体。
+启动一个服务：systemctl start firewalld.service
+关闭一个服务：systemctl stop firewalld.service
+重启一个服务：systemctl restart firewalld.service
+显示一个服务的状态：systemctl status firewalld.service
+在开机时启用一个服务：systemctl enable firewalld.service
+在开机时禁用一个服务：systemctl disable firewalld.service
+查看服务是否开机启动：systemctl is-enabled firewalld.service
+查看已启动的服务列表：systemctl list-unit-files|grep enabled
+查看启动失败的服务列表：systemctl --failed
+
+3.配置firewalld-cmd
+
+查看版本： firewall-cmd --version
+查看帮助： firewall-cmd --help
+显示状态： firewall-cmd --state
+查看所有打开的端口： firewall-cmd --zone=public --list-ports
+更新防火墙规则： firewall-cmd --reload
+查看区域信息:  firewall-cmd --get-active-zones
+查看指定接口所属区域： firewall-cmd --get-zone-of-interface=eth0
+拒绝所有包：firewall-cmd --panic-on
+取消拒绝状态： firewall-cmd --panic-off
+查看是否拒绝： firewall-cmd --query-panic
+ 
+那怎么开启一个端口呢
+添加
+firewall-cmd --zone=public --add-port=80/tcp --permanent    （--permanent永久生效，没有此参数重启后失效）
+重新载入
+firewall-cmd --reload
+查看
+firewall-cmd --zone= public --query-port=80/tcp
+删除
+firewall-cmd --zone= public --remove-port=80/tcp --permanent
+
+
+
+-----------------------xcall.sh-------多主机执行命令脚本-----------------------
+#!/bin/bash
+echo hello world
+
+params=$@
+i=133
+
+for (( i= 133 ; i <= 137  ; i = $i + 1 )); do
+        if [[ i -ne 134 ]]; then
+                echo =========== s$i $params==================
+                ssh s$i "$params"
+        fi
+done;
+
+-----------------------xsync.sh-------多主机同步文件脚本---------------------
+#!/bin/bash
+
+if [[ $# -lt 1 ]]; then echo no params ; exit ;fi
+
+p=$1
+
+dir=`dirname $p`
+filename=`basename $p`
+
+
+cd $dir
+
+fullpath=`pwd -P .`
+
+user=`whoami`
+for (( i= 135 ; i <= 137  ; i = $i + 1 )); do
+        if [[ i -ne 134 ]]; then
+                echo =========== s$i =================
+                rsync -lr $p $user@s$i:$fullpath
+        fi
+done;
+
+
+---------------------------
+ln -sfT /soft/jdk/bin/jps /usr/local/bin/jps   //可以覆盖之前的符号连接
+chown -h centos:centos /usr/local/bin/jps      //修改用户组的时候适用于符号连接
+
+-133-
+50070 in use namenode
+50090 in use secondarynamenode
+
+-135 -136 -137
+50010 in use  datanode
+
+
+lsof -i:xxx
+ netstat -tunlp	|grep xxx
+
+
+
+
