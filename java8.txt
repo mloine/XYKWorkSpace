@@ -1,0 +1,34 @@
+-- java8 的新特性
+
+1.速度更快
+2.代码更少（增加新的语法Lambda表达式）
+3.强大的 Stream API
+4.便于并行
+5.最大化减少空指针异常 Optional
+
+Lambda 表达式的基础语法
+                           -> 箭头操作符号引入
+                左侧：Lambda 表达式的参数列表
+                右侧：Lambda 表达式所需要执行的功能，即Lambda体
+ 
+        语法格式1：无参数 无返回值
+                       () -> System.out.println("Hello Lambda!")
+        语法格式2：有一个参数，并且无返回值
+                       (x) -> System.out.println (x)
+        语法格式3：只有一个参数，小括号可以不写,
+                       x -> System.out.println (x)
+         语法格式4：有两个以上的参数并且Lambda体中有多条语句 并且有返回值
+                   (x,y) -> {
+                    System.out.println ("函数式接口");
+                    return Integer.compare (x,y);
+                    };
+        语法格式5：有两个以上的参数并且Lambda体中只有一条语句 并且有返回值 那么retuen 和 {} 都可以不写
+                    (x,y) -> Integer.compare (x,y)
+
+        语法格式6：Lambda 表达式的参数列表的数据类型可以不写，因为JVM的编译器可以通过上下文推断出数据类型
+                    (Integer x,Integer y) -> Integer.compare (x,y)
+
+
+        Lambda表达式需要函数式接口的支持
+            若接口中只有一个函数的抽象方法 那么称之为函数式接口
+             @FunctionalInterface  修饰的接口必须是函数式接口
