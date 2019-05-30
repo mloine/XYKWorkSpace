@@ -18,6 +18,15 @@ public class Employee {
     public Employee() {
     }
 
+    public Employee(Integer age) {
+        this.age = age;
+    }
+
+    public Employee(Integer age, Integer slary) {
+        this.age = age;
+        this.slary = slary;
+    }
+
     public Employee(String empName, Integer age, Integer slary) {
         this.empName = empName;
         this.age = age;
