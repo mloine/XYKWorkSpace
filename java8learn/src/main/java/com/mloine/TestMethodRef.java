@@ -17,6 +17,9 @@ import java.util.function.*;
  *
  *              构造器引用
  *              1.ClassName::new
+ *
+ *              数组引用
+ *              Type:new
  * @Authoroine
  * @Date：2019/5/3015:56
  **/
@@ -86,6 +89,20 @@ public class TestMethodRef {
 
 
         BiFunction<Integer,Integer,Employee> bf3 = Employee::new;
+    }
+
+    //数组引用
+    @Test
+    public void test7() {
+
+        Function<Integer, String[]> fun = (x) -> new String[x];
+       String[] str =  fun.apply (10);
+        System.out.println (str.length);
+
+        Function<Integer, String[]> fun1 = String[]::new;
+        String[] apply = fun1.apply (11);
+        System.out.println (apply.length);
+
     }
 
 }

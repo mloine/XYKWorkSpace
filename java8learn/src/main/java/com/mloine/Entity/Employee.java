@@ -14,6 +14,8 @@ public class Employee {
 
     private Integer slary;
 
+    private Status status;
+
 
     public Employee() {
     }
@@ -63,7 +65,49 @@ public class Employee {
                 "empName='" + empName + '\'' +
                 ", age=" + age +
                 ", slary=" + slary +
+                ", status=" + status +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Employee)) return false;
+
+        Employee employee = (Employee) o;
+
+        if (!getEmpName ().equals (employee.getEmpName ())) return false;
+        if (!getAge ().equals (employee.getAge ())) return false;
+        return getSlary ().equals (employee.getSlary ());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getEmpName ().hashCode ();
+        result = 31 * result + getAge ().hashCode ();
+        result = 31 * result + getSlary ().hashCode ();
+        return result;
+    }
+
+    public Employee(String empName, Integer age, Integer slary, Status status) {
+        this.empName = empName;
+        this.age = age;
+        this.slary = slary;
+        this.status = status;
+    }
+
+    public enum Status{
+        FREE,
+        BUSY,
+        VOCATION;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }
 
